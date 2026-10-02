@@ -7,10 +7,10 @@ export default function Marquee() {
     { text: '⚡ 36 HOURS NON-STOP', color: 'text-brand-lime' },
     { text: '💰 ₹15,000 CASH PRIZES', color: 'text-brand-magenta' },
     { text: '📍 JIT HIGH-TECH CAMPUS & LABS', color: 'text-brand-lime' },
-    { text: '🍕 FREE FOOD & RED BULL FOR IN-PERSON', color: 'text-white' },
+    { text: '🍕 FREE FOOD & RED BULL FOR ALL HACKERS', color: 'text-white' },
     { text: '🤖 AUTONOMOUS AI AGENTS', color: 'text-brand-magenta' },
     { text: '🚀 DIRECT SEED FUNDING OPPORTUNITY', color: 'text-brand-lime' },
-    { text: '🌐 GLOBAL VIRTUAL PARTICIPATION WELCOME', color: 'text-brand-cyan' },
+    { text: '📍 IN JIT CAMPUS ONLY', color: 'text-brand-cyan' },
   ];
 
   return (

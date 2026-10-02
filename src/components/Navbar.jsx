@@ -18,7 +18,7 @@ export default function Navbar({ onOpenRegister, sfxEnabled, onToggleSfx }) {
           JIT COLLEGE OF ENGINEERING PRESENTS
         </span>
         <span className="truncate">
-          ⚡ JITHON '27 • ON-CAMPUS AT JIT & GLOBAL VIRTUAL • REGISTRATIONS OPEN
+          ⚡ JITHON '27 • IN JIT CAMPUS ONLY • REGISTRATIONS OPEN
         </span>
         <button
           onClick={() => {

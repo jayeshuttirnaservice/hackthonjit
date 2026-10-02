@@ -44,7 +44,7 @@ export default function Hero({ onOpenRegister, sfxEnabled }) {
           </div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-lime/10 border border-brand-lime/30 text-brand-lime font-mono text-xs font-bold uppercase tracking-wider animate-bounce">
             <span className="w-2 h-2 rounded-full bg-brand-lime animate-ping"></span>
-            JANUARY 1-3, 2027 // JIT CAMPUS + GLOBAL VIRTUAL
+            JANUARY 1-3, 2027 // JIT CAMPUS ONLY
           </div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-magenta/10 border border-brand-magenta/30 text-brand-magenta font-mono text-xs font-bold">
             <span>🔥 ₹15,000 TOTAL CASH PRIZES</span>

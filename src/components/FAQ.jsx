@@ -14,14 +14,14 @@ export default function FAQ({ sfxEnabled }) {
     },
     {
       id: 2,
-      q: 'Where is the in-person venue located?',
-      a: 'The event takes place inside the flagship campus of JIT College of Engineering. Selected participants will receive campus entry passes, gate directions, and college shuttle transport schedules in their confirmation packet.',
+      q: 'Where is the hackathon venue located?',
+      a: 'The event takes place exclusively inside the flagship campus of JIT College of Engineering. Selected participants will receive campus entry passes, gate directions, and college shuttle transport schedules in their confirmation packet.',
       color: 'text-brand-cyan',
     },
     {
       id: 3,
       q: 'Can students from colleges other than JIT participate?',
-      a: 'Yes, 100%! While hosted by JIT College of Engineering, JITHON \'27 is open to college students, high-schoolers, and independent developers from all universities across India and globally (both in-person and virtual tracks).',
+      a: 'Yes, 100%! While hosted by JIT College of Engineering, JITHON \'27 is open to college students, high-schoolers, and independent developers from all universities across India to compete on-site at the JIT campus.',
       color: 'text-brand-magenta',
     },
     {
@@ -32,8 +32,8 @@ export default function FAQ({ sfxEnabled }) {
     },
     {
       id: 5,
-      q: 'What if I don\'t have a team or want to hack remotely?',
-      a: 'Teams can be 1 to 4 people. We host an interactive mixer on the JIT campus on Friday evening and on Discord to help you find teammates. Virtual hackers can also participate seamlessly via livestreamed demos!',
+      q: 'What if I don\'t have a team yet?',
+      a: 'Teams can be 1 to 4 people. We host an interactive mixer on the JIT campus on Friday evening to help you find teammates and collaborate in real-time!',
       color: 'text-brand-purple',
     },
   ];

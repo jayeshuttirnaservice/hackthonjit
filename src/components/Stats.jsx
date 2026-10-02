@@ -59,7 +59,7 @@ export default function Stats({ sfxEnabled }) {
             <div className="font-display font-black text-4xl sm:text-5xl text-brand-magenta group-hover:scale-105 transition-transform">
               1,200+
             </div>
-            <div className="font-sans text-xs text-slate-300 mt-2">JIT Campus in-person + online</div>
+            <div className="font-sans text-xs text-slate-300 mt-2">In JIT Campus Only</div>
           </div>
 
           <div className="glass-card p-6 rounded-2xl border border-white/10 hover:border-brand-purple transition-all text-center group">
