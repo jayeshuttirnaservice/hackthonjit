@@ -18,7 +18,7 @@ export default function Navbar({ onOpenRegister, sfxEnabled, onToggleSfx }) {
           JIT COLLEGE OF ENGINEERING PRESENTS
         </span>
         <span className="truncate">
-          ⚡ JITUrnHACK '26 • ON-CAMPUS AT JIT & GLOBAL VIRTUAL • ZERO REGISTRATION FEES
+          ⚡ JITHON '27 • ON-CAMPUS AT JIT & GLOBAL VIRTUAL • REGISTRATIONS OPEN
         </span>
         <button
           onClick={() => {
@@ -46,9 +46,9 @@ export default function Navbar({ onOpenRegister, sfxEnabled, onToggleSfx }) {
             </div>
             <div className="flex flex-col">
               <span className="font-display font-black text-xl tracking-tight text-white flex items-center gap-1.5">
-                JITUrnHACK<span className="text-brand-lime text-2xl leading-none">.</span>
+                JITHON<span className="text-brand-lime text-2xl leading-none">.</span>
                 <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-brand-lime/15 text-brand-lime border border-brand-lime/40">
-                  '26
+                  '27
                 </span>
               </span>
               <span className="text-[10px] font-mono text-slate-400 tracking-widest uppercase flex items-center gap-1">
@@ -224,7 +224,7 @@ export default function Navbar({ onOpenRegister, sfxEnabled, onToggleSfx }) {
                 }}
                 className="w-full text-center py-3 bg-brand-lime text-black font-display font-black rounded-lg cursor-pointer"
               >
-                CLAIM YOUR SPOT (FREE)
+                CLAIM YOUR SPOT &rarr;
               </button>
             </div>
           </div>

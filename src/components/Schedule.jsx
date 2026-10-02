@@ -35,7 +35,7 @@ export default function Schedule({ sfxEnabled }) {
                 : 'bg-white/5 text-slate-400 hover:text-white border border-white/10'
             }`}
           >
-            DAY 01 // KICKOFF
+            DAY 01 // KICKOFF (JAN 1)
           </button>
           <button
             onClick={() => handleTabChange('day2')}
@@ -45,7 +45,7 @@ export default function Schedule({ sfxEnabled }) {
                 : 'bg-white/5 text-slate-400 hover:text-white border border-white/10'
             }`}
           >
-            DAY 02 // SPRINT & CHAOS
+            DAY 02 // SPRINT & CHAOS (JAN 2)
           </button>
           <button
             onClick={() => handleTabChange('day3')}
@@ -55,7 +55,7 @@ export default function Schedule({ sfxEnabled }) {
                 : 'bg-white/5 text-slate-400 hover:text-white border border-white/10'
             }`}
           >
-            DAY 03 // SHIP & GLORY
+            DAY 03 // SHIP & GLORY (JAN 3)
           </button>
         </div>
 
@@ -237,7 +237,7 @@ export default function Schedule({ sfxEnabled }) {
                       Grand Award Ceremony & Afterparty
                     </h4>
                     <p className="text-xs text-slate-200 mt-1">
-                      Trophies awarded by JIT leadership & sponsors, $50K bag distributed!
+                      Trophies awarded by JIT leadership & sponsors, cash prizes distributed!
                     </p>
                   </div>
                 </div>

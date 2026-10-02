@@ -33,7 +33,7 @@ export default function Footer({ onOpenRegister, sfxEnabled }) {
                 }}
                 className="w-full sm:w-auto px-10 py-5 rounded-2xl bg-brand-lime text-black font-display font-black text-lg neo-shadow-cyan hover:bg-[#d8ff33] active:translate-y-1 transition-all flex items-center justify-center gap-3 cursor-pointer"
               >
-                <span>REGISTER NOW — FREE</span>
+                <span>REGISTER NOW FOR HACKATHON</span>
                 <ArrowRight className="w-5 h-5" />
               </button>
             </div>
@@ -52,7 +52,7 @@ export default function Footer({ onOpenRegister, sfxEnabled }) {
               </div>
               <div>
                 <div className="text-white font-display font-black text-lg tracking-tight">
-                  JITUrnHACK '26 // JIT
+                  JITHON '27 // JIT
                 </div>
                 <div className="text-[11px] text-slate-400">
                   HOSTED BY JIT COLLEGE OF ENGINEERING

@@ -9,11 +9,10 @@ import Prizes from './components/Prizes';
 import Schedule from './components/Schedule';
 import FAQ from './components/FAQ';
 import Footer from './components/Footer';
-import RegisterModal from './components/RegisterModal';
+import RegisterPage from './components/RegisterPage';
 import AdminPanel from './components/AdminPanel';
 
 export default function App() {
-  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [sfxEnabled, setSfxEnabled] = useState(true);
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
 
@@ -23,8 +22,23 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  const navigateTo = (path) => {
+    window.history.pushState({}, '', path);
+    setCurrentPath(path);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   if (currentPath === '/admin' || currentPath === '/admin/') {
-    return <AdminPanel />;
+    return <AdminPanel onNavigateHome={() => navigateTo('/')} />;
+  }
+
+  if (currentPath === '/register' || currentPath === '/register/') {
+    return (
+      <RegisterPage
+        sfxEnabled={sfxEnabled}
+        onNavigateHome={() => navigateTo('/')}
+      />
+    );
   }
 
   return (
@@ -40,14 +54,14 @@ export default function App() {
 
       {/* Main Sections */}
       <Navbar
-        onOpenRegister={() => setIsRegisterOpen(true)}
+        onOpenRegister={() => navigateTo('/register')}
         sfxEnabled={sfxEnabled}
         onToggleSfx={() => setSfxEnabled((prev) => !prev)}
       />
 
       <main>
         <Hero
-          onOpenRegister={() => setIsRegisterOpen(true)}
+          onOpenRegister={() => navigateTo('/register')}
           sfxEnabled={sfxEnabled}
         />
         <Marquee />
@@ -60,14 +74,7 @@ export default function App() {
       </main>
 
       <Footer
-        onOpenRegister={() => setIsRegisterOpen(true)}
-        sfxEnabled={sfxEnabled}
-      />
-
-      {/* Registration Modal & Dynamic Holographic Badge Generator */}
-      <RegisterModal
-        isOpen={isRegisterOpen}
-        onClose={() => setIsRegisterOpen(false)}
+        onOpenRegister={() => navigateTo('/register')}
         sfxEnabled={sfxEnabled}
       />
     </div>

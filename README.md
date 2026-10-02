@@ -1,4 +1,4 @@
-# ⚡ JITUrnHACK '26 // JIT COLLEGE OF ENGINEERING (React.js Edition)
+# ⚡ JITHON '27 // JIT COLLEGE OF ENGINEERING (React.js Edition)
 
 A high-energy, cyberpunk & neo-brutalist hackathon single-page application built with **React 19, Vite, Tailwind CSS v4, Lucide React, Canvas-Confetti, and Web Audio API**.
 

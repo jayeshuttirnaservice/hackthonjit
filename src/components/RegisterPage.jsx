@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import {
-  X,
   Fingerprint,
   Ticket,
   Loader2,
@@ -13,12 +12,13 @@ import {
   Copy,
   Check,
   Clock,
+  Zap,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { playBeep } from '../utils/audio';
 import qrImage from '../assets/QRonly.png';
 
-export default function RegisterModal({ isOpen, onClose, sfxEnabled }) {
+export default function RegisterPage({ sfxEnabled, onNavigateHome }) {
   const [step, setStep] = useState(1);
   const [activeQrUrl, setActiveQrUrl] = useState(qrImage);
   const [activeUpiId, setActiveUpiId] = useState('32488114540@sbi');
@@ -26,6 +26,9 @@ export default function RegisterModal({ isOpen, onClose, sfxEnabled }) {
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Fetch dynamic payment QR setting from backend
     fetch(`${apiUrl}/settings/qr`)
       .then((res) => res.json())
       .then((data) => {
@@ -46,7 +49,7 @@ export default function RegisterModal({ isOpen, onClose, sfxEnabled }) {
         }
       })
       .catch((err) => {
-        console.warn('Could not load dynamic QR settings:', err);
+        console.warn('Could not load dynamic QR settings, using default:', err);
       });
   }, [apiUrl]);
 
@@ -68,8 +71,6 @@ export default function RegisterModal({ isOpen, onClose, sfxEnabled }) {
   const [submittedData, setSubmittedData] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-
-  if (!isOpen) return null;
 
   // Handle standard input changes
   const handleChange = (e) => {
@@ -118,8 +119,8 @@ export default function RegisterModal({ isOpen, onClose, sfxEnabled }) {
       return;
     }
 
-    if (file.size > 8 * 1024 * 1024) {
-      setErrorMessage('Screenshot size must be under 8MB.');
+    if (file.size > 10 * 1024 * 1024) {
+      setErrorMessage('Screenshot size must be under 10MB.');
       return;
     }
 
@@ -168,6 +169,7 @@ export default function RegisterModal({ isOpen, onClose, sfxEnabled }) {
       return;
     }
 
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     playBeep(850, 0.08, 'triangle', sfxEnabled);
     setStep(2);
   };
@@ -211,6 +213,8 @@ export default function RegisterModal({ isOpen, onClose, sfxEnabled }) {
         transactionId: formData.transactionId,
         status: result.data?.status || 'pending',
       });
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
 
       // Celebration Confetti Cannon
       const end = Date.now() + 2 * 1000;
@@ -265,44 +269,73 @@ export default function RegisterModal({ isOpen, onClose, sfxEnabled }) {
     });
     setScreenshotPreview('');
     setScreenshotName('');
-    onClose();
+    if (onNavigateHome) {
+      onNavigateHome();
+    } else {
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    }
   };
 
   return (
-    <>
-      {/* Registration Modal Dialog */}
-      {!submittedData ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto bg-black/85 backdrop-blur-md">
-          <div className="relative w-full max-w-4xl bg-brand-dark border-2 border-brand-lime rounded-3xl neo-shadow-lime p-5 sm:p-8 my-6 max-h-[92vh] overflow-y-auto">
-            {/* Close Button */}
-            <button
-              onClick={() => {
-                playBeep(500, 0.05, 'sine', sfxEnabled);
-                onClose();
-              }}
-              className="absolute top-5 right-5 p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer z-10"
-              aria-label="Close modal"
-            >
-              <X className="w-5 h-5" />
-            </button>
+    <div className="min-h-screen bg-brand-dark text-slate-100 font-sans relative overflow-x-hidden selection:bg-brand-lime selection:text-black py-8 px-4 sm:px-6 lg:px-8">
+      {/* Ambient Lighting Orbs */}
+      <div className="fixed top-0 left-1/4 -translate-x-1/2 w-[550px] h-[550px] bg-brand-lime/10 rounded-full blur-[140px] pointer-events-none -z-10 animate-pulse"></div>
+      <div className="fixed bottom-10 right-10 w-[500px] h-[500px] bg-brand-cyan/10 rounded-full blur-[160px] pointer-events-none -z-10"></div>
+      <div className="fixed top-1/2 left-3/4 w-[400px] h-[400px] bg-brand-purple/10 rounded-full blur-[140px] pointer-events-none -z-10"></div>
 
-            {/* Step Progress Bar */}
-            <div className="flex items-center gap-3 mb-6">
+      {/* Grid Pattern Overlay */}
+      <div className="fixed inset-0 bg-grid-pattern pointer-events-none -z-10 opacity-70"></div>
+
+      {/* Top Header / Navigation Bar */}
+      <div className="max-w-6xl mx-auto flex items-center justify-between pb-6 mb-8 border-b border-white/10">
+        <button
+          onClick={handleFinish}
+          className="flex items-center gap-3 text-left group cursor-pointer"
+        >
+          <div className="w-10 h-10 rounded-lg bg-brand-lime flex items-center justify-center text-black font-display font-black text-xl neo-shadow-white group-hover:rotate-6 transition-transform">
+            <Zap className="w-6 h-6 fill-black" />
+          </div>
+          <div>
+            <span className="font-display font-black text-white text-base tracking-tight block leading-tight">
+              JITHON '27
+            </span>
+            <span className="font-mono text-[10px] text-brand-lime block uppercase tracking-wider">
+              JIT COLLEGE OF ENGINEERING
+            </span>
+          </div>
+        </button>
+
+        <button
+          onClick={handleFinish}
+          className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-slate-300 hover:text-white font-mono text-xs flex items-center gap-2 transition-all cursor-pointer"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to Home</span>
+        </button>
+      </div>
+
+      {/* Main Registration Content Container */}
+      <div className="max-w-6xl mx-auto">
+        {!submittedData ? (
+          <div className="relative bg-brand-card/85 border-2 border-brand-lime rounded-3xl neo-shadow-lime p-6 sm:p-10 backdrop-blur-xl">
+            {/* Step Progress Indicator */}
+            <div className="flex items-center gap-3 mb-8">
               <div
-                className={`flex items-center gap-2 px-3 py-1 rounded-full font-mono text-xs font-bold transition-all ${
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-full font-mono text-xs font-bold transition-all ${
                   step === 1
-                    ? 'bg-brand-lime text-black'
+                    ? 'bg-brand-lime text-black shadow-lg shadow-brand-lime/20'
                     : 'bg-white/10 text-slate-300'
                 }`}
               >
                 <span>01</span>
                 <span>TEAM & DETAILS</span>
               </div>
-              <div className="w-8 h-[2px] bg-white/20"></div>
+              <div className="w-10 h-[2px] bg-white/20"></div>
               <div
-                className={`flex items-center gap-2 px-3 py-1 rounded-full font-mono text-xs font-bold transition-all ${
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-full font-mono text-xs font-bold transition-all ${
                   step === 2
-                    ? 'bg-brand-cyan text-black'
+                    ? 'bg-brand-cyan text-black shadow-lg shadow-brand-cyan/20'
                     : 'bg-white/10 text-slate-400'
                 }`}
               >
@@ -311,41 +344,41 @@ export default function RegisterModal({ isOpen, onClose, sfxEnabled }) {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              {/* Form Column */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              {/* Left Column: Form */}
               <div className="lg:col-span-7">
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex items-center gap-2 mb-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-brand-lime animate-ping"></span>
-                  <span className="font-mono text-[11px] text-brand-lime font-bold uppercase tracking-wider">
-                    JITHON '27 REGISTRATION
+                  <span className="font-mono text-xs text-brand-lime font-bold uppercase tracking-wider">
+                    OFFICIAL JIT REGISTRATION FORM
                   </span>
                 </div>
 
-                <h3 className="font-display font-extrabold text-2xl text-white mb-1">
+                <h1 className="font-display font-extrabold text-2xl sm:text-3xl text-white mb-2">
                   {step === 1
                     ? 'TEAM & PARTICIPANT DETAILS'
-                    : 'VERIFY PAYMENT // UTR RECEIPT'}
-                </h3>
-                <p className="text-xs text-slate-400 font-sans mb-5">
+                    : 'PAYMENT VERIFICATION // UTR RECEIPT'}
+                </h1>
+                <p className="text-xs text-slate-400 font-sans mb-6">
                   {step === 1
-                    ? 'Enter team leader details and add teammates. Click Next to proceed to payment.'
-                    : 'Scan the UPI QR code, complete payment, and submit your UTR / Transaction ID for approval.'}
+                    ? 'Fill in your team details and teammate information below. Click Next to proceed to payment.'
+                    : 'Scan the official UPI QR code or copy the UPI ID below. Enter your Transaction / UTR number for verification.'}
                 </p>
 
                 {errorMessage && (
-                  <div className="mb-4 p-3.5 rounded-xl bg-red-500/10 border border-red-500/40 text-red-400 font-mono text-xs flex items-start gap-2.5 animate-pulse">
+                  <div className="mb-5 p-4 rounded-xl bg-red-500/10 border border-red-500/40 text-red-400 font-mono text-xs flex items-start gap-2.5 animate-pulse">
                     <span className="text-red-400 font-bold text-sm">⚠️</span>
                     <span className="leading-relaxed">{errorMessage}</span>
                   </div>
                 )}
 
-                {/* ================= STEP 1: FIRST PAGE ================= */}
+                {/* ================= STEP 1: TEAM & DETAILS ================= */}
                 {step === 1 && (
                   <form onSubmit={handleNextStep} className="space-y-4">
                     {/* Name & Email */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block font-mono text-[11px] text-slate-300 uppercase mb-1">
+                        <label className="block font-mono text-xs text-slate-300 uppercase mb-1">
                           Leader Name *
                         </label>
                         <input
@@ -355,11 +388,11 @@ export default function RegisterModal({ isOpen, onClose, sfxEnabled }) {
                           value={formData.name}
                           onChange={handleChange}
                           placeholder="e.g. Satoshi Nakamoto"
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/15 focus:border-brand-lime text-white font-sans text-xs focus:outline-none transition-colors"
+                          className="w-full px-4 py-3 rounded-xl bg-black/60 border border-white/15 focus:border-brand-lime text-white font-sans text-sm focus:outline-none transition-colors"
                         />
                       </div>
                       <div>
-                        <label className="block font-mono text-[11px] text-slate-300 uppercase mb-1">
+                        <label className="block font-mono text-xs text-slate-300 uppercase mb-1">
                           Leader Email *
                         </label>
                         <input
@@ -369,15 +402,15 @@ export default function RegisterModal({ isOpen, onClose, sfxEnabled }) {
                           value={formData.email}
                           onChange={handleChange}
                           placeholder="you@example.com"
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/15 focus:border-brand-lime text-white font-sans text-xs focus:outline-none transition-colors"
+                          className="w-full px-4 py-3 rounded-xl bg-black/60 border border-white/15 focus:border-brand-lime text-white font-sans text-sm focus:outline-none transition-colors"
                         />
                       </div>
                     </div>
 
                     {/* Mobile No & College Name */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block font-mono text-[11px] text-slate-300 uppercase mb-1">
+                        <label className="block font-mono text-xs text-slate-300 uppercase mb-1">
                           Mobile No *
                         </label>
                         <input
@@ -387,11 +420,11 @@ export default function RegisterModal({ isOpen, onClose, sfxEnabled }) {
                           value={formData.mobile}
                           onChange={handleChange}
                           placeholder="e.g. 9876543210"
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/15 focus:border-brand-lime text-white font-sans text-xs focus:outline-none transition-colors"
+                          className="w-full px-4 py-3 rounded-xl bg-black/60 border border-white/15 focus:border-brand-lime text-white font-sans text-sm focus:outline-none transition-colors"
                         />
                       </div>
                       <div>
-                        <label className="block font-mono text-[11px] text-slate-300 uppercase mb-1">
+                        <label className="block font-mono text-xs text-slate-300 uppercase mb-1">
                           College Name *
                         </label>
                         <input
@@ -401,22 +434,22 @@ export default function RegisterModal({ isOpen, onClose, sfxEnabled }) {
                           value={formData.college}
                           onChange={handleChange}
                           placeholder="JIT College of Engineering"
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/15 focus:border-brand-lime text-white font-sans text-xs focus:outline-none transition-colors"
+                          className="w-full px-4 py-3 rounded-xl bg-black/60 border border-white/15 focus:border-brand-lime text-white font-sans text-sm focus:outline-none transition-colors"
                         />
                       </div>
                     </div>
 
                     {/* Technology / Domain & Team Name */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block font-mono text-[11px] text-slate-300 uppercase mb-1">
+                        <label className="block font-mono text-xs text-slate-300 uppercase mb-1">
                           Technology / Domain *
                         </label>
                         <select
                           name="technologyDomain"
                           value={formData.technologyDomain}
                           onChange={handleChange}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/15 focus:border-brand-lime text-white font-sans text-xs focus:outline-none transition-colors"
+                          className="w-full px-4 py-3 rounded-xl bg-black/60 border border-white/15 focus:border-brand-lime text-white font-sans text-sm focus:outline-none transition-colors"
                         >
                           <option value="Autonomous AI & Machine Learning">
                             Autonomous AI & Machine Learning
@@ -437,7 +470,7 @@ export default function RegisterModal({ isOpen, onClose, sfxEnabled }) {
                       </div>
 
                       <div>
-                        <label className="block font-mono text-[11px] text-slate-300 uppercase mb-1">
+                        <label className="block font-mono text-xs text-slate-300 uppercase mb-1">
                           Team Name *
                         </label>
                         <input
@@ -447,42 +480,42 @@ export default function RegisterModal({ isOpen, onClose, sfxEnabled }) {
                           value={formData.teamName}
                           onChange={handleChange}
                           placeholder="e.g. CyberDegens_404"
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/15 focus:border-brand-lime text-white font-sans text-xs focus:outline-none transition-colors"
+                          className="w-full px-4 py-3 rounded-xl bg-black/60 border border-white/15 focus:border-brand-lime text-white font-sans text-sm focus:outline-none transition-colors"
                         />
                       </div>
                     </div>
 
                     {/* Team Members Section */}
-                    <div className="pt-2 border-t border-white/10">
-                      <div className="flex items-center justify-between mb-2">
+                    <div className="pt-3 border-t border-white/10">
+                      <div className="flex items-center justify-between mb-3">
                         <span className="font-mono text-xs text-brand-lime font-bold uppercase tracking-wider">
                           TEAM MEMBERS ({formData.members.length})
                         </span>
                         <button
                           type="button"
                           onClick={handleAddMember}
-                          className="px-3 py-1 rounded-lg bg-brand-lime/10 hover:bg-brand-lime/20 border border-brand-lime/30 text-brand-lime font-mono text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer"
+                          className="px-3.5 py-1.5 rounded-lg bg-brand-lime/10 hover:bg-brand-lime/20 border border-brand-lime/30 text-brand-lime font-mono text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
                         >
                           <Plus className="w-3.5 h-3.5" />
                           <span>ADD MEMBER</span>
                         </button>
                       </div>
 
-                      <div className="space-y-2.5 max-h-56 overflow-y-auto pr-1">
+                      <div className="space-y-3">
                         {formData.members.map((member, idx) => (
                           <div
                             key={idx}
-                            className="p-3 rounded-xl bg-black/40 border border-white/10 space-y-2 relative"
+                            className="p-4 rounded-2xl bg-black/50 border border-white/10 space-y-2.5 relative"
                           >
                             <div className="flex items-center justify-between">
-                              <span className="font-mono text-[10px] text-brand-lime font-bold uppercase tracking-wider">
+                              <span className="font-mono text-xs text-brand-lime font-bold uppercase tracking-wider">
                                 Member {idx + 1}
                               </span>
                               {formData.members.length > 1 && (
                                 <button
                                   type="button"
                                   onClick={() => handleRemoveMember(idx)}
-                                  className="p-1 rounded-md text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer flex items-center gap-1 text-[10px] font-mono"
+                                  className="p-1 rounded-md text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer flex items-center gap-1 text-[11px] font-mono"
                                   title="Remove member"
                                 >
                                   <Trash2 className="w-3.5 h-3.5" />
@@ -491,7 +524,7 @@ export default function RegisterModal({ isOpen, onClose, sfxEnabled }) {
                               )}
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                               <input
                                 type="text"
                                 value={member.name}
@@ -499,7 +532,7 @@ export default function RegisterModal({ isOpen, onClose, sfxEnabled }) {
                                   handleMemberChange(idx, 'name', e.target.value)
                                 }
                                 placeholder={`Member ${idx + 1} Name`}
-                                className="w-full px-3 py-1.5 rounded-lg bg-black/60 border border-white/10 focus:border-brand-lime text-white font-sans text-xs focus:outline-none"
+                                className="w-full px-3.5 py-2 rounded-lg bg-black/70 border border-white/10 focus:border-brand-lime text-white font-sans text-xs focus:outline-none"
                               />
                               <input
                                 type="email"
@@ -508,7 +541,7 @@ export default function RegisterModal({ isOpen, onClose, sfxEnabled }) {
                                   handleMemberChange(idx, 'email', e.target.value)
                                 }
                                 placeholder="Member Email"
-                                className="w-full px-3 py-1.5 rounded-lg bg-black/60 border border-white/10 focus:border-brand-lime text-white font-sans text-xs focus:outline-none"
+                                className="w-full px-3.5 py-2 rounded-lg bg-black/70 border border-white/10 focus:border-brand-lime text-white font-sans text-xs focus:outline-none"
                               />
                               <input
                                 type="tel"
@@ -517,7 +550,7 @@ export default function RegisterModal({ isOpen, onClose, sfxEnabled }) {
                                   handleMemberChange(idx, 'mobile', e.target.value)
                                 }
                                 placeholder="Member Mobile No"
-                                className="w-full px-3 py-1.5 rounded-lg bg-black/60 border border-white/10 focus:border-brand-lime text-white font-sans text-xs focus:outline-none"
+                                className="w-full px-3.5 py-2 rounded-lg bg-black/70 border border-white/10 focus:border-brand-lime text-white font-sans text-xs focus:outline-none"
                               />
                             </div>
                           </div>
@@ -528,21 +561,21 @@ export default function RegisterModal({ isOpen, onClose, sfxEnabled }) {
                     {/* Next Button */}
                     <button
                       type="submit"
-                      className="w-full py-3.5 rounded-xl bg-brand-lime text-black font-display font-black text-sm neo-shadow-cyan hover:bg-[#d8ff33] active:translate-y-1 transition-all mt-4 flex items-center justify-center gap-2 cursor-pointer"
+                      className="w-full py-4 rounded-xl bg-brand-lime text-black font-display font-black text-base neo-shadow-cyan hover:bg-[#d8ff33] active:translate-y-1 transition-all mt-6 flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <span>NEXT: PAYMENT & VERIFICATION</span>
-                      <ArrowRight className="w-4 h-4" />
+                      <ArrowRight className="w-5 h-5" />
                     </button>
                   </form>
                 )}
 
-                {/* ================= STEP 2: PAYMENT & QR ================= */}
+                {/* ================= STEP 2: PAYMENT & VERIFICATION ================= */}
                 {step === 2 && (
-                  <form onSubmit={handleSubmit} className="space-y-4">
+                  <form onSubmit={handleSubmit} className="space-y-5">
                     {/* UPI QR CODE PAYMENT CARD */}
-                    <div className="p-4 rounded-2xl bg-black/60 border border-white/15 flex flex-col sm:flex-row items-center gap-5">
+                    <div className="p-5 rounded-2xl bg-black/60 border border-white/15 flex flex-col sm:flex-row items-center gap-6">
                       {/* QR Visual */}
-                      <div className="w-36 h-36 sm:w-40 sm:h-40 bg-white p-2 rounded-2xl flex flex-col items-center justify-center shrink-0 shadow-lg border-2 border-brand-lime/40 relative group overflow-hidden">
+                      <div className="w-44 h-44 bg-white p-2.5 rounded-2xl flex flex-col items-center justify-center shrink-0 shadow-xl border-2 border-brand-lime/40 relative group overflow-hidden">
                         <img
                           src={activeQrUrl}
                           alt={`Scan to Pay - ${activeUpiId}`}
@@ -552,33 +585,33 @@ export default function RegisterModal({ isOpen, onClose, sfxEnabled }) {
 
                       {/* Payment Info */}
                       <div className="flex-1 text-center sm:text-left">
-                        <div className="inline-block px-2.5 py-0.5 rounded-md bg-brand-lime/20 text-brand-lime font-mono text-[10px] font-bold border border-brand-lime/30 mb-1">
+                        <div className="inline-block px-3 py-1 rounded-md bg-brand-lime/20 text-brand-lime font-mono text-[11px] font-bold border border-brand-lime/30 mb-2">
                           SCAN TO PAY VIA ANY UPI APP
                         </div>
-                        <h4 className="font-display font-bold text-white text-base">
+                        <h3 className="font-display font-bold text-white text-lg">
                           JITHON '27 Registration Fee
-                        </h4>
-                        <p className="text-xs text-slate-300 font-sans mt-0.5 mb-2">
-                          GPay, PhonePe, Paytm, or BHIM UPI accepted.
+                        </h3>
+                        <p className="text-xs text-slate-300 font-sans mt-0.5 mb-3">
+                          Google Pay, PhonePe, Paytm, or BHIM UPI accepted.
                         </p>
 
                         <div className="flex items-center gap-2 justify-center sm:justify-start">
-                          <span className="font-mono text-xs text-brand-cyan bg-white/5 px-2.5 py-1 rounded border border-white/10 select-all font-bold">
+                          <span className="font-mono text-sm text-brand-cyan bg-white/5 px-3 py-1.5 rounded-lg border border-white/10 select-all font-bold">
                             {activeUpiId}
                           </span>
                           <button
                             type="button"
                             onClick={handleCopyUpi}
-                            className="p-1 px-2 rounded bg-white/10 hover:bg-white/20 text-white font-mono text-[10px] flex items-center gap-1 transition-colors cursor-pointer"
+                            className="py-1.5 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white font-mono text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
                           >
                             {copiedUpi ? (
                               <>
-                                <Check className="w-3 h-3 text-brand-lime" />
+                                <Check className="w-3.5 h-3.5 text-brand-lime" />
                                 <span className="text-brand-lime">Copied</span>
                               </>
                             ) : (
                               <>
-                                <Copy className="w-3 h-3" />
+                                <Copy className="w-3.5 h-3.5" />
                                 <span>Copy</span>
                               </>
                             )}
@@ -589,7 +622,7 @@ export default function RegisterModal({ isOpen, onClose, sfxEnabled }) {
 
                     {/* Transaction ID / UTR No */}
                     <div>
-                      <label className="block font-mono text-xs text-slate-300 uppercase mb-1">
+                      <label className="block font-mono text-xs text-slate-300 uppercase mb-1.5">
                         Transaction ID / UTR No *
                       </label>
                       <input
@@ -599,16 +632,16 @@ export default function RegisterModal({ isOpen, onClose, sfxEnabled }) {
                         value={formData.transactionId}
                         onChange={handleChange}
                         placeholder="e.g. 428901238910 / UPI-UTR-XXXXX"
-                        className="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/15 focus:border-brand-lime text-white font-sans text-xs focus:outline-none transition-colors"
+                        className="w-full px-4 py-3 rounded-xl bg-black/60 border border-white/15 focus:border-brand-lime text-white font-sans text-sm focus:outline-none transition-colors"
                       />
                     </div>
 
                     {/* Payment Screenshot Upload */}
                     <div>
-                      <label className="block font-mono text-xs text-slate-300 uppercase mb-1">
+                      <label className="block font-mono text-xs text-slate-300 uppercase mb-1.5">
                         Payment Transaction Screenshot
                       </label>
-                      <div className="relative border-2 border-dashed border-white/20 hover:border-brand-lime rounded-2xl p-4 text-center bg-black/40 transition-colors">
+                      <div className="relative border-2 border-dashed border-white/20 hover:border-brand-lime rounded-2xl p-5 text-center bg-black/40 transition-colors">
                         <input
                           type="file"
                           accept="image/*"
@@ -616,34 +649,34 @@ export default function RegisterModal({ isOpen, onClose, sfxEnabled }) {
                           className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
                         />
                         {screenshotPreview ? (
-                          <div className="flex items-center justify-between gap-3 text-left">
+                          <div className="flex items-center justify-between gap-4 text-left">
                             <div className="flex items-center gap-3">
                               <img
                                 src={screenshotPreview}
                                 alt="Receipt Preview"
-                                className="w-12 h-12 rounded-lg object-cover border border-brand-lime"
+                                className="w-14 h-14 rounded-lg object-cover border border-brand-lime shadow-md"
                               />
                               <div>
-                                <span className="font-mono text-xs text-white block truncate max-w-[200px]">
+                                <span className="font-mono text-xs text-white block truncate max-w-[220px]">
                                   {screenshotName || 'Screenshot attached'}
                                 </span>
-                                <span className="font-mono text-[10px] text-brand-lime flex items-center gap-1">
-                                  <CheckCircle2 className="w-3 h-3" /> Ready for verification
+                                <span className="font-mono text-[10px] text-brand-lime flex items-center gap-1 mt-0.5">
+                                  <CheckCircle2 className="w-3.5 h-3.5" /> Ready for verification
                                 </span>
                               </div>
                             </div>
-                            <span className="font-mono text-[10px] text-slate-400 underline">
+                            <span className="font-mono text-xs text-slate-400 underline hover:text-white">
                               Change Image
                             </span>
                           </div>
                         ) : (
-                          <div className="flex flex-col items-center justify-center py-2 pointer-events-none">
-                            <Upload className="w-6 h-6 text-brand-lime mb-1" />
-                            <span className="font-sans text-xs text-slate-200 font-semibold">
+                          <div className="flex flex-col items-center justify-center py-3 pointer-events-none">
+                            <Upload className="w-7 h-7 text-brand-lime mb-1.5" />
+                            <span className="font-sans text-sm text-slate-200 font-semibold">
                               Click or drag screenshot here
                             </span>
-                            <span className="font-mono text-[10px] text-slate-500 mt-0.5">
-                              PNG, JPG, or WEBP (Max 8MB)
+                            <span className="font-mono text-[11px] text-slate-500 mt-1">
+                              PNG, JPG, or WEBP (Max 10MB)
                             </span>
                           </div>
                         )}
@@ -651,14 +684,14 @@ export default function RegisterModal({ isOpen, onClose, sfxEnabled }) {
                     </div>
 
                     {/* Action Buttons: Back + Submit */}
-                    <div className="flex gap-3 pt-2">
+                    <div className="flex gap-4 pt-3">
                       <button
                         type="button"
                         onClick={() => {
                           playBeep(600, 0.05, 'sine', sfxEnabled);
                           setStep(1);
                         }}
-                        className="px-5 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-mono text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                        className="px-6 py-4 rounded-xl bg-white/10 hover:bg-white/20 text-white font-mono text-xs flex items-center gap-2 transition-colors cursor-pointer"
                       >
                         <ArrowLeft className="w-4 h-4" />
                         <span>BACK</span>
@@ -667,17 +700,17 @@ export default function RegisterModal({ isOpen, onClose, sfxEnabled }) {
                       <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="flex-1 py-3.5 rounded-xl bg-brand-lime text-black font-display font-black text-sm neo-shadow-cyan hover:bg-[#d8ff33] active:translate-y-1 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                        className="flex-1 py-4 rounded-xl bg-brand-lime text-black font-display font-black text-base neo-shadow-cyan hover:bg-[#d8ff33] active:translate-y-1 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                       >
                         {isSubmitting ? (
                           <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <Loader2 className="w-5 h-5 animate-spin" />
                             <span>SUBMITTING FOR APPROVAL...</span>
                           </>
                         ) : (
                           <>
                             <span>SUBMIT REGISTRATION</span>
-                            <Ticket className="w-4 h-4" />
+                            <Ticket className="w-5 h-5" />
                           </>
                         )}
                       </button>
@@ -686,53 +719,53 @@ export default function RegisterModal({ isOpen, onClose, sfxEnabled }) {
                 )}
               </div>
 
-              {/* Digital Pass Preview Column */}
-              <div className="lg:col-span-5 flex flex-col items-center">
+              {/* Right Column: Dynamic Live Preview Badge */}
+              <div className="lg:col-span-5 flex flex-col items-center sticky top-8">
                 <div className="text-center font-mono text-[11px] text-slate-400 mb-3 tracking-widest uppercase">
                   // LIVE REGISTRATION PREVIEW
                 </div>
 
-                <div className="w-full max-w-[320px] rounded-3xl hologram-effect border-2 border-white/30 p-5 shadow-2xl relative select-none">
+                <div className="w-full max-w-[340px] rounded-3xl hologram-effect border-2 border-white/30 p-6 shadow-2xl relative select-none">
                   {/* Badge Header */}
-                  <div className="flex items-center justify-between border-b border-white/20 pb-3 mb-3">
+                  <div className="flex items-center justify-between border-b border-white/20 pb-3 mb-4">
                     <div className="flex items-center gap-2">
                       <span className="w-3 h-3 rounded-full bg-brand-lime"></span>
                       <div className="text-left">
-                        <span className="font-display font-black text-white text-sm tracking-tight block leading-tight">
+                        <span className="font-display font-black text-white text-base tracking-tight block leading-tight">
                           JITHON '27
                         </span>
-                        <span className="font-mono text-[8px] text-brand-lime block tracking-wider uppercase">
+                        <span className="font-mono text-[9px] text-brand-lime block tracking-wider uppercase">
                           JIT INNOVATION CELL
                         </span>
                       </div>
                     </div>
-                    <span className="font-mono text-[9px] text-amber-400 bg-black/80 px-2 py-0.5 rounded border border-amber-400/40 flex items-center gap-1">
-                      <Clock className="w-2.5 h-2.5" />
+                    <span className="font-mono text-[10px] text-amber-400 bg-black/80 px-2 py-0.5 rounded border border-amber-400/40 flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
                       PENDING VERIF.
                     </span>
                   </div>
 
                   {/* Avatar / Scan simulator */}
-                  <div className="w-16 h-16 mx-auto rounded-2xl bg-black/70 border border-white/20 flex flex-col items-center justify-center mb-3 relative overflow-hidden">
-                    <Fingerprint className="w-8 h-8 text-brand-lime" />
+                  <div className="w-20 h-20 mx-auto rounded-2xl bg-black/70 border border-white/20 flex flex-col items-center justify-center mb-4 relative overflow-hidden">
+                    <Fingerprint className="w-10 h-10 text-brand-lime" />
                     <div className="absolute inset-0 bg-brand-lime/10 animate-scanline"></div>
                   </div>
 
                   {/* Team & Leader Details */}
-                  <div className="text-center mb-4">
-                    <div className="font-display font-black text-lg text-white truncate">
+                  <div className="text-center mb-5">
+                    <div className="font-display font-black text-xl text-white truncate">
                       {formData.teamName.trim() || 'TEAM NAME'}
                     </div>
-                    <div className="font-mono text-xs text-brand-cyan truncate">
+                    <div className="font-mono text-xs text-brand-cyan truncate mt-0.5">
                       Leader: {formData.name.trim() || 'Attendee Name'}
                     </div>
-                    <div className="mt-1.5 inline-block px-2.5 py-0.5 rounded-full bg-white/10 text-brand-lime font-mono text-[10px] font-bold border border-white/10">
+                    <div className="mt-2 inline-block px-3 py-1 rounded-full bg-white/10 text-brand-lime font-mono text-[11px] font-bold border border-white/10">
                       {formData.technologyDomain}
                     </div>
                   </div>
 
                   {/* Metadata Grid */}
-                  <div className="grid grid-cols-2 gap-2 text-left font-mono text-[9px] bg-black/60 p-2.5 rounded-xl border border-white/10 mb-3">
+                  <div className="grid grid-cols-2 gap-2 text-left font-mono text-[10px] bg-black/60 p-3 rounded-xl border border-white/10 mb-4">
                     <div>
                       <span className="text-slate-500 block">COLLEGE</span>
                       <span className="text-slate-200 font-bold truncate block">
@@ -740,7 +773,7 @@ export default function RegisterModal({ isOpen, onClose, sfxEnabled }) {
                       </span>
                     </div>
                     <div>
-                      <span className="text-slate-500 block">MEMBERS</span>
+                      <span className="text-slate-500 block">TEAM SIZE</span>
                       <span className="text-brand-lime font-bold truncate block">
                         {formData.members.filter((m) => m.name.trim()).length + 1} Hacker(s)
                       </span>
@@ -749,46 +782,44 @@ export default function RegisterModal({ isOpen, onClose, sfxEnabled }) {
 
                   {/* Barcode Graphic */}
                   <div className="flex items-center justify-between pt-2 border-t border-white/10">
-                    <div className="font-mono text-[8px] tracking-widest text-slate-400">
+                    <div className="font-mono text-[9px] tracking-widest text-slate-400">
                       #JIT-VERIF-QUEUED
                     </div>
-                    <div className="flex gap-0.5 items-end h-5 opacity-75">
-                      <div className="w-1 h-5 bg-white"></div>
-                      <div className="w-0.5 h-5 bg-white"></div>
-                      <div className="w-1.5 h-5 bg-white"></div>
-                      <div className="w-0.5 h-5 bg-white"></div>
-                      <div className="w-1 h-5 bg-white"></div>
-                      <div className="w-2 h-5 bg-white"></div>
-                      <div className="w-0.5 h-5 bg-white"></div>
-                      <div className="w-1 h-5 bg-white"></div>
+                    <div className="flex gap-0.5 items-end h-6 opacity-75">
+                      <div className="w-1 h-6 bg-white"></div>
+                      <div className="w-0.5 h-6 bg-white"></div>
+                      <div className="w-1.5 h-6 bg-white"></div>
+                      <div className="w-0.5 h-6 bg-white"></div>
+                      <div className="w-1 h-6 bg-white"></div>
+                      <div className="w-2 h-6 bg-white"></div>
+                      <div className="w-0.5 h-6 bg-white"></div>
+                      <div className="w-1 h-6 bg-white"></div>
                     </div>
                   </div>
                 </div>
 
-                <p className="text-[10px] font-mono text-slate-500 mt-3 text-center">
-                  *Subject to transaction ID verification by the JIT Admin team
+                <p className="text-[11px] font-mono text-slate-500 mt-4 text-center">
+                  *Official ticket pass will be generated upon UTR verification by the JIT Admin team
                 </p>
               </div>
             </div>
           </div>
-        </div>
-      ) : (
-        /* Confirmation Success Modal */
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-lg">
-          <div className="relative w-full max-w-md bg-brand-dark border-2 border-brand-lime rounded-3xl neo-shadow-lime p-7 text-center">
-            <div className="w-16 h-16 rounded-full bg-amber-400/20 border-2 border-amber-400 mx-auto flex items-center justify-center text-3xl mb-4">
+        ) : (
+          /* Submission Success Screen */
+          <div className="max-w-xl mx-auto bg-brand-card/90 border-2 border-brand-lime rounded-3xl neo-shadow-lime p-8 sm:p-10 text-center">
+            <div className="w-20 h-20 rounded-full bg-amber-400/20 border-2 border-amber-400 mx-auto flex items-center justify-center text-4xl mb-5">
               ⏳
             </div>
-            <h3 className="font-display font-black text-2xl text-white mb-2">
+            <h2 className="font-display font-black text-3xl text-white mb-2">
               SUBMITTED FOR APPROVAL!
-            </h3>
-            <p className="text-xs text-slate-300 font-sans mb-5">
+            </h2>
+            <p className="text-sm text-slate-300 font-sans mb-6">
               Your registration for <strong>{submittedData.teamName}</strong> has been
               received. The payment transaction is currently in the{' '}
               <strong className="text-amber-400">Admin Approval Area</strong> for verification.
             </p>
 
-            <div className="bg-black/60 p-4 rounded-xl border border-white/10 font-mono text-xs text-left mb-5 space-y-1.5">
+            <div className="bg-black/60 p-5 rounded-2xl border border-white/10 font-mono text-xs text-left mb-6 space-y-2">
               <div className="text-slate-400">
                 APPLICATION ID:{' '}
                 <span className="text-brand-lime font-bold">
@@ -813,15 +844,17 @@ export default function RegisterModal({ isOpen, onClose, sfxEnabled }) {
               </div>
             </div>
 
-            <button
-              onClick={handleFinish}
-              className="w-full py-3.5 rounded-xl bg-brand-lime text-black font-display font-black text-sm neo-shadow-white hover:bg-[#d8ff33] transition-all cursor-pointer"
-            >
-              GOT IT 🔥
-            </button>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={handleFinish}
+                className="flex-1 py-4 rounded-xl bg-brand-lime text-black font-display font-black text-sm neo-shadow-white hover:bg-[#d8ff33] transition-all cursor-pointer"
+              >
+                RETURN TO HOME 🔥
+              </button>
+            </div>
           </div>
-        </div>
-      )}
-    </>
+        )}
+      </div>
+    </div>
   );
 }

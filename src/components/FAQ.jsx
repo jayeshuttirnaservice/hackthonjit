@@ -8,8 +8,8 @@ export default function FAQ({ sfxEnabled }) {
   const faqs = [
     {
       id: 1,
-      q: 'Is it completely free to attend?',
-      a: '100% free, zero cap. JIT College of Engineering provides the venue, 24/7 food court meals, unlimited snacks, Red Bull/chai, ultra high-speed 1Gbps WiFi, hardware equipment, and custom swag. You only bring your laptop and ambition.',
+      q: 'How does registration and team verification work?',
+      a: 'Register your team via the online form, complete the registration deposit by scanning the official UPI QR code, and submit your Transaction / UTR number with receipt. The JIT admin desk verifies all submissions in real-time, after which your confirmed admission entry pass is minted.',
       color: 'text-brand-lime',
     },
     {
@@ -21,7 +21,7 @@ export default function FAQ({ sfxEnabled }) {
     {
       id: 3,
       q: 'Can students from colleges other than JIT participate?',
-      a: 'Yes, 100%! While hosted by JIT College of Engineering, JITUrnHACK \'26 is open to college students, high-schoolers, and independent developers from all universities across India and globally (both in-person and virtual tracks).',
+      a: 'Yes, 100%! While hosted by JIT College of Engineering, JITHON \'27 is open to college students, high-schoolers, and independent developers from all universities across India and globally (both in-person and virtual tracks).',
       color: 'text-brand-magenta',
     },
     {
@@ -55,7 +55,7 @@ export default function FAQ({ sfxEnabled }) {
             FAQ (NO FLUFF)
           </h2>
           <p className="text-slate-400 font-sans mt-2">
-            Everything you need to know about JITUrnHACK '26 at JIT College of Engineering.
+            Everything you need to know about JITHON '27 at JIT College of Engineering.
           </p>
         </div>
 

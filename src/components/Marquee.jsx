@@ -2,10 +2,10 @@ import React from 'react';
 
 export default function Marquee() {
   const items = [
-    { text: '⚡ JITUrnHACK \'26', color: 'text-brand-lime' },
+    { text: '⚡ JITHON \'27', color: 'text-brand-lime' },
     { text: '🏛️ JIT COLLEGE OF ENGINEERING', color: 'text-brand-cyan' },
     { text: '⚡ 36 HOURS NON-STOP', color: 'text-brand-lime' },
-    { text: '💰 $50K PRIZE POOL', color: 'text-brand-magenta' },
+    { text: '💰 ₹15,000 CASH PRIZES', color: 'text-brand-magenta' },
     { text: '📍 JIT HIGH-TECH CAMPUS & LABS', color: 'text-brand-lime' },
     { text: '🍕 FREE FOOD & RED BULL FOR IN-PERSON', color: 'text-white' },
     { text: '🤖 AUTONOMOUS AI AGENTS', color: 'text-brand-magenta' },

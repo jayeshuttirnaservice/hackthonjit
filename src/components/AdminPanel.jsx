@@ -16,10 +16,32 @@ import {
   AlertCircle,
   Copy,
   Check,
+  QrCode,
+  Upload,
+  RotateCcw,
+  Loader2,
+  Lock,
+  KeyRound,
+  LogOut,
+  Eye,
+  EyeOff,
+  Shield,
+  User,
 } from 'lucide-react';
 import { playBeep } from '../utils/audio';
+import qrDefaultImage from '../assets/QRonly.png';
 
-export default function AdminPanel() {
+export default function AdminPanel({ onNavigateHome }) {
+  // Authentication State
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return !!sessionStorage.getItem('jit_admin_auth');
+  });
+  const [adminIdInput, setAdminIdInput] = useState('');
+  const [passwordInput, setPasswordInput] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loginError, setLoginError] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
   const [registrations, setRegistrations] = useState([]);
   const [stats, setStats] = useState({ total: 0, pending: 0, approved: 0, rejected: 0 });
   const [activeTab, setActiveTab] = useState('pending'); // 'pending' | 'approved' | 'rejected' | 'all'
@@ -28,6 +50,27 @@ export default function AdminPanel() {
   const [actionLoading, setActionLoading] = useState(null); // id of item being approved/rejected
   const [selectedImage, setSelectedImage] = useState(null); // modal preview for screenshot
   const [copiedId, setCopiedId] = useState(null);
+
+  // Dynamic QR Code Management States
+  const [qrSetting, setQrSetting] = useState({
+    qrImageUrl: '',
+    upiId: '32488114540@sbi',
+    isCustom: false,
+  });
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const [newQrBase64, setNewQrBase64] = useState('');
+  const [newQrPreview, setNewQrPreview] = useState('');
+  const [newUpiId, setNewUpiId] = useState('32488114540@sbi');
+  const [isUpdatingQr, setIsUpdatingQr] = useState(false);
+  const [qrStatusMsg, setQrStatusMsg] = useState(null);
+
+  // Dynamic Password Change States
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [currentPasswordInput, setCurrentPasswordInput] = useState('');
+  const [newPasswordInput, setNewPasswordInput] = useState('');
+  const [confirmPasswordInput, setConfirmPasswordInput] = useState('');
+  const [passwordStatusMsg, setPasswordStatusMsg] = useState(null);
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -43,6 +86,19 @@ export default function AdminPanel() {
     const backendOrigin = apiUrl.replace(/\/api\/?$/, '');
     return `${backendOrigin}${imagePath}`;
   };
+
+  const fetchQrSetting = useCallback(async () => {
+    try {
+      const res = await fetch(`${apiUrl}/settings/qr`);
+      const data = await res.json();
+      if (data.success && data.data) {
+        setQrSetting(data.data);
+        setNewUpiId(data.data.upiId || '32488114540@sbi');
+      }
+    } catch (err) {
+      console.error('Failed to load QR settings:', err);
+    }
+  }, [apiUrl]);
 
   const fetchRegistrations = useCallback(async () => {
     try {
@@ -62,18 +118,25 @@ export default function AdminPanel() {
   }, [apiUrl]);
 
   useEffect(() => {
+    if (!isAuthenticated) return;
     let ignore = false;
     async function load() {
       try {
-        const [regRes, statsRes] = await Promise.all([
+        const [regRes, statsRes, qrRes] = await Promise.all([
           fetch(`${apiUrl}/registrations?limit=100`),
           fetch(`${apiUrl}/registrations/stats`),
+          fetch(`${apiUrl}/settings/qr`),
         ]);
         const regData = await regRes.json();
         const statsData = await statsRes.json();
+        const qrData = await qrRes.json();
         if (!ignore) {
           if (regData.success) setRegistrations(regData.data || []);
           if (statsData.success) setStats(statsData.stats || { total: 0, pending: 0, approved: 0, rejected: 0 });
+          if (qrData.success && qrData.data) {
+            setQrSetting(qrData.data);
+            setNewUpiId(qrData.data.upiId || '32488114540@sbi');
+          }
         }
       } catch (err) {
         console.error('Failed to load admin data:', err);
@@ -85,11 +148,212 @@ export default function AdminPanel() {
     return () => {
       ignore = true;
     };
-  }, [apiUrl]);
+  }, [apiUrl, isAuthenticated]);
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    if (!adminIdInput.trim() || !passwordInput) {
+      setLoginError('Please enter both Admin ID and Password.');
+      return;
+    }
+
+    setIsLoggingIn(true);
+    setLoginError('');
+    try {
+      const res = await fetch(`${apiUrl}/admin/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: adminIdInput.trim(),
+          password: passwordInput,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        sessionStorage.setItem('jit_admin_auth', data.token || 'true');
+        sessionStorage.setItem('jit_admin_user', data.admin?.id || adminIdInput.trim());
+        setIsAuthenticated(true);
+        playBeep(1000, 0.15, 'triangle');
+      } else {
+        setLoginError(data.message || 'Invalid Admin ID or Password.');
+        playBeep(300, 0.2, 'sawtooth');
+      }
+    } catch (err) {
+      setLoginError('Failed to connect to backend server: ' + err.message);
+      playBeep(300, 0.2, 'sawtooth');
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('jit_admin_auth');
+    sessionStorage.removeItem('jit_admin_user');
+    setIsAuthenticated(false);
+    setAdminIdInput('');
+    setPasswordInput('');
+    setLoginError('');
+    playBeep(600, 0.1, 'sine');
+  };
+
+  const handleQrFileSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setQrStatusMsg({ type: 'error', text: 'Please select a valid image (PNG, JPG, or WEBP).' });
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      setQrStatusMsg({ type: 'error', text: 'Image file size must be under 10MB.' });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const base64 = ev.target?.result;
+      setNewQrBase64(base64);
+      setNewQrPreview(base64);
+      setQrStatusMsg(null);
+    };
+    reader.readAsDataURL(file);
+    playBeep(850, 0.05, 'triangle');
+  };
+
+  const handleSaveQrCode = async (e) => {
+    e.preventDefault();
+    if (!newQrBase64 && (!newUpiId || newUpiId.trim() === qrSetting.upiId)) {
+      setQrStatusMsg({
+        type: 'error',
+        text: 'Please select a new QR image or change the UPI ID.',
+      });
+      return;
+    }
+
+    setIsUpdatingQr(true);
+    setQrStatusMsg(null);
+    try {
+      const res = await fetch(`${apiUrl}/settings/qr`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          qrImage: newQrBase64 || undefined,
+          upiId: newUpiId.trim(),
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setQrSetting(data.data);
+        setNewQrBase64('');
+        setNewQrPreview('');
+        setQrStatusMsg({
+          type: 'success',
+          text: 'Payment QR code updated successfully! Live on main registration page.',
+        });
+        playBeep(1000, 0.15, 'triangle');
+        setTimeout(() => {
+          setIsQrModalOpen(false);
+          setQrStatusMsg(null);
+        }, 1500);
+      } else {
+        setQrStatusMsg({
+          type: 'error',
+          text: data.message || 'Failed to update QR code.',
+        });
+      }
+    } catch (err) {
+      setQrStatusMsg({ type: 'error', text: 'Network error: ' + err.message });
+    } finally {
+      setIsUpdatingQr(false);
+    }
+  };
+
+  const handleResetQrCode = async () => {
+    if (!window.confirm('Reset payment QR back to original official JIT QR code?')) return;
+    setIsUpdatingQr(true);
+    try {
+      const res = await fetch(`${apiUrl}/settings/qr/reset`, { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        setQrSetting(data.data);
+        setNewQrBase64('');
+        setNewQrPreview('');
+        setNewUpiId(data.data.upiId);
+        setQrStatusMsg({
+          type: 'success',
+          text: 'Reset to default official JIT QR code successfully.',
+        });
+        playBeep(900, 0.1, 'sine');
+      }
+    } catch (err) {
+      setQrStatusMsg({ type: 'error', text: 'Reset failed: ' + err.message });
+    } finally {
+      setIsUpdatingQr(false);
+    }
+  };
 
   const handleGoHome = () => {
-    window.history.pushState({}, '', '/');
-    window.dispatchEvent(new PopStateEvent('popstate'));
+    if (onNavigateHome) {
+      onNavigateHome();
+    } else {
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    }
+  };
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    if (!newPasswordInput || newPasswordInput.trim().length < 3) {
+      setPasswordStatusMsg({ type: 'error', text: 'New password must be at least 3 characters long.' });
+      return;
+    }
+    if (newPasswordInput !== confirmPasswordInput) {
+      setPasswordStatusMsg({ type: 'error', text: 'New password and confirmation do not match.' });
+      return;
+    }
+
+    setIsUpdatingPassword(true);
+    setPasswordStatusMsg(null);
+    try {
+      const activeAdminUser = sessionStorage.getItem('jit_admin_user') || 'admin';
+      const res = await fetch(`${apiUrl}/admin/update-credentials`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: activeAdminUser,
+          currentPassword: currentPasswordInput,
+          newPassword: newPasswordInput.trim(),
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setPasswordStatusMsg({
+          type: 'success',
+          text: 'Admin password updated successfully in simple text.',
+        });
+        setCurrentPasswordInput('');
+        setNewPasswordInput('');
+        setConfirmPasswordInput('');
+        playBeep(1000, 0.15, 'triangle');
+        setTimeout(() => {
+          setIsPasswordModalOpen(false);
+          setPasswordStatusMsg(null);
+        }, 1500);
+      } else {
+        setPasswordStatusMsg({
+          type: 'error',
+          text: data.message || 'Failed to update admin password.',
+        });
+      }
+    } catch (err) {
+      setPasswordStatusMsg({ type: 'error', text: 'Network error: ' + err.message });
+    } finally {
+      setIsUpdatingPassword(false);
+    }
   };
 
   const handleApprove = async (id) => {
@@ -174,6 +438,130 @@ export default function AdminPanel() {
     return matchesTab && matchesSearch;
   });
 
+  // Render Login Screen if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-brand-dark text-slate-100 font-sans flex items-center justify-center p-4 relative overflow-hidden selection:bg-brand-lime selection:text-black">
+        {/* Ambient Glow Orbs */}
+        <div className="fixed top-1/4 left-1/3 -translate-x-1/2 w-[500px] h-[500px] bg-brand-lime/10 rounded-full blur-[140px] pointer-events-none -z-10 animate-pulse"></div>
+        <div className="fixed bottom-10 right-1/4 w-[450px] h-[450px] bg-brand-cyan/10 rounded-full blur-[150px] pointer-events-none -z-10"></div>
+        <div className="fixed inset-0 bg-grid-pattern pointer-events-none -z-10 opacity-70"></div>
+
+        <div className="max-w-md w-full bg-brand-card/90 border-2 border-brand-lime rounded-3xl neo-shadow-lime p-8 sm:p-10 backdrop-blur-xl relative">
+          {/* Header Brand */}
+          <div className="text-center mb-8">
+            <div className="w-14 h-14 rounded-2xl bg-brand-lime mx-auto flex items-center justify-center text-black font-display font-black text-2xl neo-shadow-white mb-4">
+              <Lock className="w-7 h-7 text-black" />
+            </div>
+
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-lime/10 border border-brand-lime/30 text-brand-lime font-mono text-[10px] font-bold tracking-widest uppercase mb-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-brand-lime animate-ping"></span>
+              RESTRICTED ACCESS
+            </div>
+
+            <h1 className="font-display font-black text-2xl sm:text-3xl text-white tracking-tight">
+              Admin Control Desk
+            </h1>
+            <p className="font-sans text-xs text-slate-400 mt-1">
+              JITHON '27 // Jawahar Education Society's ITMR
+            </p>
+          </div>
+
+          {/* Error Message */}
+          {loginError && (
+            <div className="p-3.5 rounded-xl bg-red-500/15 border border-red-500 text-red-300 font-mono text-xs flex items-center gap-2.5 mb-6">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{loginError}</span>
+            </div>
+          )}
+
+          {/* Login Form */}
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className="block font-mono text-xs text-slate-300 uppercase mb-1.5 font-bold">
+                Admin ID
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <User className="w-4 h-4" />
+                </div>
+                <input
+                  type="text"
+                  required
+                  value={adminIdInput}
+                  onChange={(e) => {
+                    setAdminIdInput(e.target.value);
+                    if (loginError) setLoginError('');
+                  }}
+                  placeholder="e.g. admin"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-black/60 border border-white/15 focus:border-brand-lime text-white font-mono text-sm focus:outline-none transition-colors"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block font-mono text-xs text-slate-300 uppercase mb-1.5 font-bold">
+                Password
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <KeyRound className="w-4 h-4" />
+                </div>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={passwordInput}
+                  onChange={(e) => {
+                    setPasswordInput(e.target.value);
+                    if (loginError) setLoginError('');
+                  }}
+                  placeholder="Enter admin password"
+                  className="w-full pl-10 pr-11 py-3 rounded-xl bg-black/60 border border-white/15 focus:border-brand-lime text-white font-mono text-sm focus:outline-none transition-colors"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-white transition-colors cursor-pointer"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoggingIn}
+              className="w-full py-3.5 rounded-xl bg-brand-lime text-black font-display font-black text-sm neo-shadow-white hover:bg-[#d8ff33] active:translate-y-1 disabled:opacity-50 transition-all flex items-center justify-center gap-2 cursor-pointer mt-2"
+            >
+              {isLoggingIn ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>AUTHENTICATING...</span>
+                </>
+              ) : (
+                <>
+                  <Shield className="w-4 h-4" />
+                  <span>LOGIN TO ADMIN DESK</span>
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Back Link */}
+          <div className="mt-6 text-center">
+            <button
+              onClick={handleGoHome}
+              className="text-xs font-mono text-slate-400 hover:text-white inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Back to Hackathon Home</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-brand-dark text-slate-100 font-sans p-4 sm:p-8 lg:p-10 relative overflow-x-hidden selection:bg-brand-lime selection:text-black">
       {/* Background Glow */}
@@ -191,7 +579,7 @@ export default function AdminPanel() {
               </span>
             </div>
             <h1 className="font-display font-black text-2xl sm:text-4xl text-white">
-              JITUrnHACK '26 Registration Management
+              JITHON '27 Registration Management
             </h1>
             <p className="text-xs text-slate-400 font-sans mt-1">
               Review transaction receipts, verify UTR numbers, and approve hacker team admissions.
@@ -201,8 +589,42 @@ export default function AdminPanel() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => {
+                setIsQrModalOpen(true);
+                setNewQrBase64('');
+                setNewQrPreview('');
+                setNewUpiId(qrSetting.upiId || '32488114540@sbi');
+                setQrStatusMsg(null);
+                playBeep(750, 0.05, 'triangle');
+              }}
+              className="px-4 py-2 rounded-xl bg-brand-cyan/15 hover:bg-brand-cyan/25 border border-brand-cyan/40 text-brand-cyan font-mono text-xs font-bold flex items-center gap-2 transition-all cursor-pointer shadow-lg shadow-brand-cyan/10"
+            >
+              <QrCode className="w-3.5 h-3.5" />
+              <span>Change QR Code</span>
+              {qrSetting?.isCustom && (
+                <span className="w-2 h-2 rounded-full bg-brand-cyan animate-pulse"></span>
+              )}
+            </button>
+
+            <button
+              onClick={() => {
+                setIsPasswordModalOpen(true);
+                setCurrentPasswordInput('');
+                setNewPasswordInput('');
+                setConfirmPasswordInput('');
+                setPasswordStatusMsg(null);
+                playBeep(750, 0.05, 'triangle');
+              }}
+              className="px-4 py-2 rounded-xl bg-brand-purple/15 hover:bg-brand-purple/25 border border-brand-purple/40 text-purple-300 font-mono text-xs font-bold flex items-center gap-2 transition-all cursor-pointer shadow-lg shadow-brand-purple/10"
+            >
+              <KeyRound className="w-3.5 h-3.5" />
+              <span>Change Password</span>
+            </button>
+
+            <button
+              onClick={() => {
                 setIsLoading(true);
                 fetchRegistrations();
+                fetchQrSetting();
               }}
               disabled={isLoading}
               className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-slate-300 font-mono text-xs flex items-center gap-2 transition-all cursor-pointer"
@@ -213,10 +635,19 @@ export default function AdminPanel() {
 
             <button
               onClick={handleGoHome}
-              className="px-4 py-2 rounded-xl bg-brand-lime text-black font-display font-black text-xs neo-shadow-white hover:bg-[#d8ff33] flex items-center gap-2 transition-all cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-mono text-xs flex items-center gap-2 transition-all cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>Back to Hackathon</span>
+              <span>Hackathon</span>
+            </button>
+
+            <button
+              onClick={handleLogout}
+              className="px-3.5 py-2 rounded-xl bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 text-red-300 font-mono text-xs flex items-center gap-1.5 transition-all cursor-pointer"
+              title="Log out of Admin Desk"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Logout</span>
             </button>
           </div>
         </div>
@@ -555,6 +986,297 @@ export default function AdminPanel() {
           </div>
         )}
       </div>
+
+      {/* Dynamic Payment QR Code Configuration Modal */}
+      {isQrModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl">
+          <div className="relative max-w-3xl w-full bg-brand-dark border-2 border-brand-cyan rounded-3xl neo-shadow-cyan p-6 sm:p-8 max-h-[95vh] overflow-y-auto">
+            {/* Header */}
+            <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-brand-cyan/20 border border-brand-cyan flex items-center justify-center text-brand-cyan">
+                  <QrCode className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="font-display font-black text-xl sm:text-2xl text-white flex items-center gap-2">
+                    Payment QR Code Management
+                  </h2>
+                  <p className="text-xs text-slate-400 font-sans mt-0.5">
+                    Upload a new payment QR code. Changes sync live across the entire registration page.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsQrModalOpen(false)}
+                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white cursor-pointer transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Status Alert Banner */}
+            {qrStatusMsg && (
+              <div
+                className={`p-3.5 rounded-xl border mb-6 flex items-center gap-3 font-mono text-xs ${
+                  qrStatusMsg.type === 'success'
+                    ? 'bg-brand-lime/15 border-brand-lime text-brand-lime'
+                    : 'bg-red-500/15 border-red-500 text-red-300'
+                }`}
+              >
+                {qrStatusMsg.type === 'success' ? (
+                  <Check className="w-4 h-4 shrink-0" />
+                ) : (
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                )}
+                <span>{qrStatusMsg.text}</span>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Column 1: Current Live QR Code */}
+              <div className="p-5 rounded-2xl bg-black/50 border border-white/10 flex flex-col items-center text-center">
+                <div className="flex items-center justify-between w-full mb-3">
+                  <span className="font-mono text-xs text-slate-400 font-bold uppercase">
+                    Currently Active on Site
+                  </span>
+                  <span
+                    className={`font-mono text-[10px] px-2 py-0.5 rounded font-bold uppercase ${
+                      qrSetting.isCustom
+                        ? 'bg-brand-cyan/20 text-brand-cyan border border-brand-cyan/40'
+                        : 'bg-white/10 text-slate-300'
+                    }`}
+                  >
+                    {qrSetting.isCustom ? 'Custom Uploaded' : 'Default Official'}
+                  </span>
+                </div>
+
+                <div className="w-48 h-48 bg-white p-3 rounded-2xl flex items-center justify-center shadow-xl border-2 border-brand-cyan/40 mb-4 overflow-hidden">
+                  <img
+                    src={
+                      qrSetting.qrImageUrl
+                        ? getFullImageUrl(qrSetting.qrImageUrl)
+                        : qrDefaultImage
+                    }
+                    alt="Active QR Code"
+                    className="w-full h-full object-contain rounded-xl"
+                  />
+                </div>
+
+                <div className="w-full bg-white/5 p-3 rounded-xl border border-white/10 font-mono text-xs text-left space-y-1">
+                  <div className="text-slate-400 text-[11px]">ACTIVE UPI ID:</div>
+                  <div className="text-brand-cyan font-bold truncate select-all">
+                    {qrSetting.upiId || '32488114540@sbi'}
+                  </div>
+                </div>
+
+                {qrSetting.isCustom && (
+                  <button
+                    type="button"
+                    onClick={handleResetQrCode}
+                    disabled={isUpdatingQr}
+                    className="mt-4 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-red-500/20 text-slate-400 hover:text-red-300 border border-white/10 hover:border-red-500/30 font-mono text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    <span>Reset to Default Official QR</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Column 2: Upload New QR Code Form */}
+              <form onSubmit={handleSaveQrCode} className="flex flex-col justify-between space-y-4">
+                <div className="space-y-4">
+                  <div>
+                    <label className="block font-mono text-xs text-slate-300 uppercase mb-1.5 font-bold">
+                      Upload New QR Image
+                    </label>
+                    <div className="relative border-2 border-dashed border-white/20 hover:border-brand-cyan rounded-2xl p-4 text-center bg-black/40 transition-colors">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleQrFileSelect}
+                        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                      />
+
+                      {newQrPreview ? (
+                        <div className="flex flex-col items-center gap-2">
+                          <img
+                            src={newQrPreview}
+                            alt="New QR Preview"
+                            className="w-28 h-28 object-contain bg-white p-2 rounded-xl shadow-lg border border-brand-cyan"
+                          />
+                          <span className="font-mono text-xs text-brand-lime font-bold">
+                            ✓ New QR image selected
+                          </span>
+                          <span className="font-mono text-[10px] text-slate-400">
+                            Click or drop to choose another image
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="py-4 flex flex-col items-center">
+                          <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-slate-400 mb-2">
+                            <Upload className="w-6 h-6" />
+                          </div>
+                          <span className="font-mono text-xs text-white font-bold block mb-1">
+                            Click to browse or drop QR image
+                          </span>
+                          <span className="font-mono text-[10px] text-slate-400">
+                            PNG, JPG, or WEBP (Max 10MB)
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block font-mono text-xs text-slate-300 uppercase mb-1.5 font-bold">
+                      UPI ID (Linked to this QR)
+                    </label>
+                    <input
+                      type="text"
+                      value={newUpiId}
+                      onChange={(e) => setNewUpiId(e.target.value)}
+                      placeholder="e.g. 32488114540@sbi"
+                      className="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/15 focus:border-brand-cyan text-white font-mono text-xs focus:outline-none transition-colors"
+                    />
+                    <span className="font-mono text-[10px] text-slate-500 mt-1 block">
+                      This UPI ID will appear alongside the QR code and copy button on the main site.
+                    </span>
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    disabled={isUpdatingQr || (!newQrBase64 && (!newUpiId || newUpiId.trim() === qrSetting.upiId))}
+                    className="w-full py-3.5 rounded-xl bg-brand-cyan text-black font-display font-black text-sm neo-shadow-white hover:bg-[#33f3ff] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  >
+                    {isUpdatingQr ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>UPDATING LIVE SITE...</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="w-4 h-4" />
+                        <span>UPDATE QR ON MAIN SITE</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Admin Password Change Modal */}
+      {isPasswordModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl">
+          <div className="relative max-w-md w-full bg-brand-dark border-2 border-brand-purple rounded-3xl neo-shadow-purple p-6 sm:p-8">
+            <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-brand-purple/20 border border-brand-purple flex items-center justify-center text-purple-300">
+                  <KeyRound className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="font-display font-black text-xl text-white">
+                    Update Admin Password
+                  </h2>
+                  <p className="font-mono text-[10px] text-slate-400">
+                    Saved directly in simple plain text (unhashed)
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsPasswordModalOpen(false)}
+                className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {passwordStatusMsg && (
+              <div
+                className={`p-3.5 rounded-xl font-mono text-xs flex items-center gap-2 mb-4 ${
+                  passwordStatusMsg.type === 'success'
+                    ? 'bg-brand-lime/20 border border-brand-lime text-brand-lime'
+                    : 'bg-red-500/20 border border-red-500 text-red-300'
+                }`}
+              >
+                {passwordStatusMsg.type === 'success' ? (
+                  <CheckCircle className="w-4 h-4 shrink-0" />
+                ) : (
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                )}
+                <span>{passwordStatusMsg.text}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleChangePassword} className="space-y-4">
+              <div>
+                <label className="block font-mono text-xs text-slate-300 uppercase mb-1 font-bold">
+                  Current Password
+                </label>
+                <input
+                  type="password"
+                  value={currentPasswordInput}
+                  onChange={(e) => setCurrentPasswordInput(e.target.value)}
+                  placeholder="Enter current password"
+                  className="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/15 focus:border-brand-purple text-white font-mono text-xs focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block font-mono text-xs text-slate-300 uppercase mb-1 font-bold">
+                  New Password (Plain Text) *
+                </label>
+                <input
+                  type="password"
+                  required
+                  value={newPasswordInput}
+                  onChange={(e) => setNewPasswordInput(e.target.value)}
+                  placeholder="Enter new plain text password"
+                  className="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/15 focus:border-brand-purple text-white font-mono text-xs focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block font-mono text-xs text-slate-300 uppercase mb-1 font-bold">
+                  Confirm New Password *
+                </label>
+                <input
+                  type="password"
+                  required
+                  value={confirmPasswordInput}
+                  onChange={(e) => setConfirmPasswordInput(e.target.value)}
+                  placeholder="Re-enter new password"
+                  className="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/15 focus:border-brand-purple text-white font-mono text-xs focus:outline-none"
+                />
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={isUpdatingPassword}
+                  className="w-full py-3 rounded-xl bg-purple-500 hover:bg-purple-400 text-white font-display font-black text-sm neo-shadow-white disabled:opacity-50 flex items-center justify-center gap-2 transition-all cursor-pointer"
+                >
+                  {isUpdatingPassword ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>SAVING IN PLAIN TEXT...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Shield className="w-4 h-4" />
+                      <span>SAVE NEW PASSWORD</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Image Modal Preview */}
       {selectedImage && (

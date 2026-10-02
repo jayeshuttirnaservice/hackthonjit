@@ -3,34 +3,28 @@ import { Sparkles, ChevronDown } from 'lucide-react';
 import { playBeep } from '../utils/audio';
 
 export default function Hero({ onOpenRegister, sfxEnabled }) {
-  const [timeLeft, setTimeLeft] = useState({
-    days: 24,
-    hours: 14,
-    mins: 38,
-    secs: 49,
-  });
+  const calculateTimeLeft = () => {
+    const targetDate = new Date('2027-01-01T09:00:00');
+    const now = new Date().getTime();
+    const diff = targetDate.getTime() - now;
+
+    if (diff <= 0) {
+      return { days: 0, hours: 0, mins: 0, secs: 0 };
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+    return { days, hours, mins, secs };
+  };
+
+  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft);
 
   useEffect(() => {
-    // 24 days & 14 hours target
-    const targetDate = new Date();
-    targetDate.setDate(targetDate.getDate() + 24);
-    targetDate.setHours(targetDate.getHours() + 14);
-
     const interval = setInterval(() => {
-      const now = new Date().getTime();
-      const diff = targetDate - now;
-
-      if (diff <= 0) {
-        clearInterval(interval);
-        return;
-      }
-
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const secs = Math.floor((diff % (1000 * 60)) / 1000);
-
-      setTimeLeft({ days, hours, mins, secs });
+      setTimeLeft(calculateTimeLeft());
     }, 1000);
 
     return () => clearInterval(interval);
@@ -43,17 +37,17 @@ export default function Hero({ onOpenRegister, sfxEnabled }) {
         {/* Floating Badges */}
         <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-brand-lime/15 border border-brand-lime text-brand-lime font-mono text-xs font-black uppercase tracking-wider">
-            <span>⚡ JITUrnHACK '26</span>
+            <span>⚡ JITHON '27</span>
           </div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-white font-mono text-xs font-bold uppercase tracking-wider">
             <span>🏛️ JIT COLLEGE OF ENGINEERING</span>
           </div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-lime/10 border border-brand-lime/30 text-brand-lime font-mono text-xs font-bold uppercase tracking-wider animate-bounce">
             <span className="w-2 h-2 rounded-full bg-brand-lime animate-ping"></span>
-            OCTOBER 24-26, 2026 // JIT CAMPUS + GLOBAL VIRTUAL
+            JANUARY 1-3, 2027 // JIT CAMPUS + GLOBAL VIRTUAL
           </div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-magenta/10 border border-brand-magenta/30 text-brand-magenta font-mono text-xs font-bold">
-            <span>🔥 $50,000 TOTAL BAG</span>
+            <span>🔥 ₹15,000 TOTAL CASH PRIZES</span>
           </div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-cyan/10 border border-brand-cyan/30 text-brand-cyan font-mono text-xs">
             <span>⚡ DEPT. OF COMPUTER ENGINEERING & INNOVATION CELL</span>
@@ -72,7 +66,7 @@ export default function Hero({ onOpenRegister, sfxEnabled }) {
           </h1>
 
           <p className="max-w-2xl mx-auto text-lg sm:text-xl text-slate-300 font-sans font-medium mb-10 leading-relaxed">
-            Welcome to <strong className="text-brand-lime font-bold">JITUrnHACK '26</strong>, hosted exclusively at{' '}
+            Welcome to <strong className="text-brand-lime font-bold">JITHON '27</strong>, hosted exclusively at{' '}
             <strong className="text-white border-b border-brand-lime pb-0.5">
               JIT College of Engineering
             </strong>

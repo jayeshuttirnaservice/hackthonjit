@@ -31,7 +31,7 @@ export default function Stats({ sfxEnabled }) {
           </h2>
           <p className="text-slate-400 font-sans">
             Forget boring corporate hackathons with stiff speeches. Hosted at{' '}
-            <strong className="text-white">JIT College of Engineering</strong>, JITUrnHACK is high adrenaline, zero slide decks, and 100% working code.
+            <strong className="text-white">JIT College of Engineering</strong>, JITHON is high adrenaline, zero slide decks, and 100% working code.
           </p>
         </div>
 
@@ -41,9 +41,9 @@ export default function Stats({ sfxEnabled }) {
           <div className="glass-card p-6 rounded-2xl border border-white/10 hover:border-brand-lime transition-all text-center group">
             <div className="font-mono text-xs text-slate-400 mb-2">// TOTAL_BAG</div>
             <div className="font-display font-black text-4xl sm:text-5xl text-brand-lime group-hover:scale-105 transition-transform">
-              $50K+
+              ₹15,000
             </div>
-            <div className="font-sans text-xs text-slate-300 mt-2">Cash, grants & seed bounties</div>
+            <div className="font-sans text-xs text-slate-300 mt-2">Direct cash prizes for winning teams</div>
           </div>
 
           <div className="glass-card p-6 rounded-2xl border border-white/10 hover:border-brand-cyan transition-all text-center group">

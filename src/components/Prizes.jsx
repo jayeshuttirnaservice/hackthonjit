@@ -11,10 +11,10 @@ export default function Prizes() {
             THE BAG 💰
           </span>
           <h2 className="font-display font-extrabold text-3xl sm:text-5xl mt-3 tracking-tight">
-            $50,000 UP FOR GRABS.
+            ₹15,000 CASH PRIZES.
           </h2>
           <p className="text-slate-400 font-sans mt-3">
-            Straight non-dilutive cold cash, GPU cloud compute credits, VC fast-track intros, and legendary custom hardware trophies.
+            Direct cash prizes via UPI/Bank transfer, official JIT College of Engineering certificates of excellence, winner trophies, and verified participation certificates for all team members.
           </p>
         </div>
 
@@ -26,17 +26,19 @@ export default function Prizes() {
             <div className="inline-block px-4 py-1 rounded-full bg-brand-cyan/20 text-brand-cyan font-mono text-xs font-bold mb-4">
               🥈 2ND PLACE OVERALL
             </div>
-            <div className="font-display font-black text-5xl text-white mb-2">$12,000</div>
-            <div className="text-sm font-mono text-slate-400 mb-6">+ $15,000 Cloud Compute Credits</div>
+            <div className="font-display font-black text-5xl text-white mb-2">₹5,000</div>
             <ul className="text-left font-mono text-xs space-y-3 border-t border-white/10 pt-6 text-slate-300">
               <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-brand-cyan" /> Direct fast-track into top accelerator
+                <Check className="w-4 h-4 text-brand-cyan" /> Direct Cash Prize (UPI / Bank Transfer)
               </li>
               <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-brand-cyan" /> 1-on-1 VC Pitch & Mentorship
+                <Check className="w-4 h-4 text-brand-cyan" /> Official JIT Runner-Up Trophy & Memento
               </li>
               <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-brand-cyan" /> Custom Silver Mechanical Keyboard
+                <Check className="w-4 h-4 text-brand-cyan" /> Certificate of Merit from JIT
+              </li>
+              <li className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-brand-cyan" /> Verified Certificate of Participation
               </li>
             </ul>
           </div>
@@ -49,20 +51,22 @@ export default function Prizes() {
             <div className="pt-4 inline-block px-4 py-1 rounded-full bg-brand-lime/20 text-brand-lime font-mono text-xs font-bold mb-4">
               🥇 1ST PLACE OVERALL
             </div>
-            <div className="font-display font-black text-6xl text-brand-lime mb-2">$25,000</div>
-            <div className="text-sm font-mono text-slate-300 font-bold mb-6">+ $35,000 In Cloud & GPU Credits</div>
+            <div className="font-display font-black text-6xl text-brand-lime mb-2">₹7,000</div>
             <ul className="text-left font-mono text-xs space-y-3.5 border-t border-white/10 pt-6 text-slate-200">
               <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-brand-lime" /> $25K Cash (no equity taken, direct wire)
+                <CheckCircle2 className="w-4 h-4 text-brand-lime" /> Direct Cash Prize (UPI / Bank Transfer)
               </li>
               <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-brand-lime" /> Guaranteed demo meeting with Tier-1 Partner VCs
+                <CheckCircle2 className="w-4 h-4 text-brand-lime" /> Official JIT Winner Trophy & Memento
               </li>
               <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-brand-lime" /> Hand-forged Cyberpunk Champion Ring & Trophy
+                <CheckCircle2 className="w-4 h-4 text-brand-lime" /> Certificate of Excellence from JIT
               </li>
               <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-brand-lime" /> Front page feature across developer media
+                <CheckCircle2 className="w-4 h-4 text-brand-lime" /> Verified Certificate of Participation
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-brand-lime" /> Project Showcase on JIT Innovation Portal
               </li>
             </ul>
           </div>
@@ -72,17 +76,19 @@ export default function Prizes() {
             <div className="inline-block px-4 py-1 rounded-full bg-brand-magenta/20 text-brand-magenta font-mono text-xs font-bold mb-4">
               🥉 3RD PLACE OVERALL
             </div>
-            <div className="font-display font-black text-5xl text-white mb-2">$6,000</div>
-            <div className="text-sm font-mono text-slate-400 mb-6">+ $10,000 Cloud Compute Credits</div>
+            <div className="font-display font-black text-5xl text-white mb-2">₹3,000</div>
             <ul className="text-left font-mono text-xs space-y-3 border-t border-white/10 pt-6 text-slate-300">
               <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-brand-magenta" /> Demo feature to 50,000+ engineers
+                <Check className="w-4 h-4 text-brand-magenta" /> Direct Cash Prize (UPI / Bank Transfer)
               </li>
               <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-brand-magenta" /> Exclusive founder swag bag + hardware kits
+                <Check className="w-4 h-4 text-brand-magenta" /> Official JIT 2nd Runner-Up Trophy
               </li>
               <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-brand-magenta" /> Free Pro accounts across sponsor APIs
+                <Check className="w-4 h-4 text-brand-magenta" /> Certificate of Merit from JIT
+              </li>
+              <li className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-brand-magenta" /> Verified Certificate of Participation
               </li>
             </ul>
           </div>
@@ -97,9 +103,9 @@ export default function Prizes() {
               <Palette className="w-5 h-5" />
             </div>
             <div>
-              <div className="font-display font-bold text-white text-base">BEST UI/UX DRIP</div>
-              <div className="font-mono text-xs text-brand-lime font-bold">$2,500 BOUNTY</div>
-              <p className="text-xs text-slate-400 mt-1">Smoothest animations, typography & pure aesthetic genius.</p>
+              <div className="font-display font-bold text-white text-base">BEST UI/UX DESIGN</div>
+              <div className="font-mono text-xs text-brand-lime font-bold">CERTIFICATE & MEMENTO</div>
+              <p className="text-xs text-slate-400 mt-1">Smoothest animations, typography & clean user interface.</p>
             </div>
           </div>
 
@@ -108,9 +114,9 @@ export default function Prizes() {
               <Flame className="w-5 h-5" />
             </div>
             <div>
-              <div className="font-display font-bold text-white text-base">FUNNIEST WORKING APP</div>
-              <div className="font-mono text-xs text-brand-cyan font-bold">$2,000 BOUNTY</div>
-              <p className="text-xs text-slate-400 mt-1">Absurd concepts executed with terrifying engineering perfection.</p>
+              <div className="font-display font-bold text-white text-base">MOST CREATIVE APP</div>
+              <div className="font-mono text-xs text-brand-cyan font-bold">CERTIFICATE & MEMENTO</div>
+              <p className="text-xs text-slate-400 mt-1">Unique concepts executed with outstanding student creativity.</p>
             </div>
           </div>
 
@@ -119,9 +125,9 @@ export default function Prizes() {
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
-              <div className="font-display font-bold text-white text-base">BEST OPEN SOURCE TOOL</div>
-              <div className="font-mono text-xs text-brand-magenta font-bold">$2,500 BOUNTY</div>
-              <p className="text-xs text-slate-400 mt-1">A CLI, library, or devtool that 10x's developer happiness.</p>
+              <div className="font-display font-bold text-white text-base">BEST TECHNICAL BUILD</div>
+              <div className="font-mono text-xs text-brand-magenta font-bold">CERTIFICATE & MEMENTO</div>
+              <p className="text-xs text-slate-400 mt-1">Clean code architecture, solid engineering & practical utility.</p>
             </div>
           </div>
 
@@ -131,8 +137,8 @@ export default function Prizes() {
             </div>
             <div>
               <div className="font-display font-bold text-white text-base">PEOPLE'S CHOICE</div>
-              <div className="font-mono text-xs text-brand-purple font-bold">COMMUNITY VOTE</div>
-              <p className="text-xs text-slate-400 mt-1">Voted live by hackers and Discord watchers during pitch night.</p>
+              <div className="font-mono text-xs text-brand-purple font-bold">COMMUNITY RECOGNITION</div>
+              <p className="text-xs text-slate-400 mt-1">Voted live by hackers and attendees during pitch presentations.</p>
             </div>
           </div>
 

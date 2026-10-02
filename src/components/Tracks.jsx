@@ -34,8 +34,8 @@ export default function Tracks() {
                   <span className="px-3 py-1 rounded-full bg-brand-lime text-black font-mono text-xs font-black">
                     TRACK 01
                   </span>
-                  <span className="text-xs font-mono text-slate-400 font-bold">
-                    $18,000 PRIZE ALLOCATION
+                  <span className="text-xs font-mono text-brand-lime font-bold">
+                    FEATURED TRACK
                   </span>
                 </div>
                 <h3 className="font-display font-black text-2xl sm:text-3xl text-white mb-3">
@@ -62,7 +62,7 @@ export default function Tracks() {
                   <span className="px-3 py-1 rounded-full bg-brand-magenta text-white font-mono text-xs font-black">
                     TRACK 02
                   </span>
-                  <span className="text-xs font-mono text-slate-400 font-bold">$10,000</span>
+                  <span className="text-xs font-mono text-brand-magenta font-bold">VIRAL & CONSUMER</span>
                 </div>
                 <h3 className="font-display font-black text-2xl text-white mb-3">
                   BRAINROT TO PRODUCT
@@ -87,7 +87,7 @@ export default function Tracks() {
                   <span className="px-3 py-1 rounded-full bg-brand-cyan text-black font-mono text-xs font-black">
                     TRACK 03
                   </span>
-                  <span className="text-xs font-mono text-slate-400 font-bold">$10,000</span>
+                  <span className="text-xs font-mono text-brand-cyan font-bold">WEB3 & DEGEN</span>
                 </div>
                 <h3 className="font-display font-black text-2xl text-white mb-3">
                   DEGEN RAILS & CRYPTO
@@ -115,8 +115,8 @@ export default function Tracks() {
                   <span className="px-3 py-1 rounded-full bg-brand-purple text-white font-mono text-xs font-black">
                     TRACK 04
                   </span>
-                  <span className="text-xs font-mono text-slate-400 font-bold">
-                    $12,000 PRIZE ALLOCATION
+                  <span className="text-xs font-mono text-purple-300 font-bold">
+                    HARDWARE & IOT
                   </span>
                 </div>
                 <h3 className="font-display font-black text-2xl sm:text-3xl text-white mb-3">
